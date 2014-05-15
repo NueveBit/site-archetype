@@ -9,8 +9,12 @@ plataforma Concrete5.
 
 Dependencias necesarias (instalar globalmente):
     
-    * Composer Dependecy Manager for PHP (global install): https://getcomposer.org 
-    * Node.JS 0.10+: http://nodejs.org/
+    * Composer Dependecy Manager for PHP (global install): 
+        https://getcomposer.org 
+
+    * Node.JS 0.10+: 
+        http://nodejs.org/
+
         Dependencias instalables a través de NPM:
         - Gulp -> npm install -g gulp
         - Bower -> npm install -g bower
