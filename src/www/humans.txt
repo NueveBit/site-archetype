@@ -1,0 +1,27 @@
+Organization: NueveBit
+
+/* TEAM */
+
+Software Engineer: Edgar Merino
+Site: nuevebit.com
+Twitter: @donvodka
+Location: Xalapa, MX
+
+Junior Developer: Blanca Díaz
+Site: nuevebit.com
+Twitter: @sagiblank
+Location: Xalapa, MX
+
+UI Design: Lorena Rodríguez
+Site: nuevebit.com
+Twitter: @lorsrv
+Location: Xalapa, MX
+
+
+/* SITE */
+
+Standards: HTML5, CSS3, JavaScript
+Components: Modernizr, jQuery, LESS CSS, Bootstrap
+CMS: Concrete5
+Fonts: WebINK.com
+Software: NetBeans, Sublime Text 2, Git

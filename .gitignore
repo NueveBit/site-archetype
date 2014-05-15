@@ -1,0 +1,42 @@
+# dependencias gulp
+/node_modules/
+
+# PHP deps
+/src/www/libraries/vendor/
+
+# front-end deps
+/src/www/bower_components
+
+# temp files
+/tmp/
+
+# build files
+/build/
+
+# backup files
+*.log
+*.swp
+*.swo
+*.sublime-*
+
+# configuración de netbeans privada
+/nbproject
+
+# main.css se genera cada vez que hay cambios en los archivos less
+/src/www/css/main.css
+
+# main.js se genera cada vez que hay cambios en los scripts js
+/src/www/js/main.js
+
+# concrete5 dist dir
+/src/www/concrete/
+
+# este archivo se copia desde /src/config, no es necesario incluirlo
+/src/www/config/
+
+# cache c5
+/src/www/files/cache/
+/src/www/files/tmp/
+
+# updates c5
+/src/www/updates/

@@ -1,0 +1,44 @@
+##########################################################################
+#   NueveBit Official Concrete5 Website Archetype                        #
+##########################################################################
+
+
+Esta es la estructura oficial utilizada para crear sitios web utilizando la
+pĺataforma Concrete5.
+
+
+Dependencias necesarias (instalar globalmente):
+    
+    * Composer Dependecy Manager for PHP: https://getcomposer.org
+    * Robo Task Runner for PHP: http://robo.li
+    * Node.JS 0.10+: http://nodejs.org/
+        Dependencias instalables a través de NPM:
+        - Bower -> npm install -g bower
+
+
+Al desarrollar un sitio web utilizando esta estructura, es necesario ejecutar
+en todo momento mientras se esté desarrollando la tarea:
+
+TAREA DEV
+
+De esta manera, se realizarán algunas acciones automáticamente:
+
+    * Generación de archivos CSS a partir de fuentes LESS.
+    * Copiar recursos necesarios de src/ a build/
+
+Para construir el proyecto, ejecutar la tarea:
+
+TAREA BUILD
+
+
+Cada sitio está estructurado como un paquete de C5, y es considerado 
+internamente como un "website package". Un website packages es básicamente
+un paquete normal de C5 con ligeras modificaciones:
+
+    * Cada website package incluye un directorio config/, donde se pueden
+    establecer las configuraciones del sitio web. Todos los archivos que
+    aquí se encuentren se copiarán a build/config.
+    * Los overrides de funcionalidad core de C5 deben incluirse en el
+    directorio overrides/, siguiendo la misma estructura de una app web
+    de C5. Estos se copiarán al directorio que corresponda en build/
+    al construir el proyecto.

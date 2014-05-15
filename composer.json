@@ -1,0 +1,64 @@
+{
+    "name": "nuevebit/site-archetype",
+    "description": "Arquetipo para sitios web realizados con Concrete5",
+    "license": "propietary",
+    "homepage": "http://www.nuevebit.com",
+    "type": "project",
+    "config": {
+        "vendor-dir": "src/www/libraries/vendor"
+    },
+    "authors": [
+        {
+            "name": "Edgar Merino",
+            "email": "emerino@nuevebit.com",
+            "role": "Developer"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/NueveBit/concrete5-cli.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/NueveBit/c5-starting-points.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/NueveBit/c5-nuevebit.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/NueveBit/concrete5-installer-plugin.git"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "concrete5/concrete5",
+                "version": "5.6.3.1",
+                "type": "concrete5-installer",
+                "dist": {
+                    "type": "zip",
+                    "url": "http://www.concrete5.org/download_file/-/view/66159/8497/"
+                },
+                "require": {
+                    "nuevebit/concrete5-installer-plugin": "0.1"
+                }
+            }
+        }
+
+    ],
+    "require": {
+        "composer/installers": "~1.0",
+        "nuevebit/concrete5-installer-plugin": "0.1",
+        "concrete5/concrete5-cli": "dev-master",
+        "concrete5/concrete5": "~5.6",
+        "nuevebit/c5-starting-points": "1.0",
+        "nuevebit/c5-nuevebit": "dev-master"
+    },
+    "extra": {
+        "installer-paths": {
+            "src/www/packages/{$name}": ["type:concrete5-package"]
+        }
+    }
+}
