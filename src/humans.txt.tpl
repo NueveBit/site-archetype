@@ -1,13 +1,13 @@
 Organization: NueveBit
 
 /* TEAM */
+<% _.forEach(authors, function(author) { %>
+<%- author.role %>: <%- author.name %>
+Email: <%- author.email %>
+Twitter: <%- author.twitter %>
+Location: <%- author.location %>
 
-Senior Developer: Edgar Merino
-Email: emerino@nuevebit.com
-Twitter: @donvodka
-Location: Xalapa, MX
-
-
+<% }); %>
 /* SITE */
 
 Standards: HTML5, CSS3, JavaScript

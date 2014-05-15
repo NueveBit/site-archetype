@@ -28,6 +28,7 @@ var concat = require("gulp-concat");
 var uglify = require("gulp-uglify");
 var less = require('gulp-less');
 var minifycss = require("gulp-minify-css");
+var template = require('gulp-template');
 
 // local config
 var config = {
@@ -279,6 +280,19 @@ gulp.task("build:less", function() {
 });
 
 /**
+ * Build humans.txt based on information from composer.json
+ */
+gulp.task("build:humans", function() {
+    var composer = JSON.parse(fs.readFileSync("composer.json"));
+
+    gulp.src("src/humans.txt.tpl")
+            .pipe(template({
+                authors: composer.authors}))
+            .pipe(rename("humans.txt"))
+            .pipe(gulp.dest("src/www"));
+});
+
+/**
  * Public tasks
  * 
  * Estas son las tareas que comunmente se ejecutan en la línea de comandos.
@@ -318,6 +332,7 @@ gulp.task("serve", function() {
 gulp.task("default", [
     "build:less",
     "build:scripts",
+    "build:humans",
     "copy:controller",
     "copy:config"
 ], function() {
@@ -326,6 +341,7 @@ gulp.task("default", [
 
     gulp.watch(["src/config/**"], ["copy:config"]);
     gulp.watch(["src/controller.php"], ["copy:controller"]);
+    gulp.watch(["src/humans.txt.tpl"], ["build:humans"]);
     gulp.watch(["src/www/themes/site/js/**/*.js"], ["build:scripts"]);
     gulp.watch(["src/www/themes/site/less/**/*.less"], ["build:less"]);
 

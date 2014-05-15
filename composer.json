@@ -11,7 +11,9 @@
         {
             "name": "Edgar Merino",
             "email": "emerino@nuevebit.com",
-            "role": "Developer"
+            "twitter": "@donvodka",
+            "location": "Xalapa, MX",
+            "role": "Senior Developer"
         }
     ],
     "repositories": [
