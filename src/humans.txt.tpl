@@ -4,7 +4,6 @@ Organization: NueveBit
 <% _.forEach(authors, function(author) { %>
 <%- author.role %>: <%- author.name %>
 Email: <%- author.email %>
-
 <% }); %>
 /* SITE */
 
