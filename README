@@ -4,41 +4,60 @@
 
 
 Esta es la estructura oficial utilizada para crear sitios web utilizando la
-pĺataforma Concrete5.
+plataforma Concrete5.
 
 
 Dependencias necesarias (instalar globalmente):
     
-    * Composer Dependecy Manager for PHP: https://getcomposer.org
-    * Robo Task Runner for PHP: http://robo.li
+    * Composer Dependecy Manager for PHP (global install): https://getcomposer.org 
     * Node.JS 0.10+: http://nodejs.org/
         Dependencias instalables a través de NPM:
+        - Gulp -> npm install -g gulp
         - Bower -> npm install -g bower
 
 
-Al desarrollar un sitio web utilizando esta estructura, es necesario ejecutar
-en todo momento mientras se esté desarrollando la tarea:
+La primera vez que se clona este repositorio, es necesario ejecutar los siguientes
+comandos, para descargar las dependencias necesarias para el proyecto (después 
+de ejecutarse, ejecuta automáticamente 'composer install && bower install'):
 
-TAREA DEV
+    npm install
+
+Una vez que se hayan instalado las dependencias, es necesario instalar concrete5
+localmente en el equipo. Para ello, se debe editar la configuración de la base
+de datos, desde el archivo src/config/db.json. Si el usuario y base de datos
+no existen, se puede ejecutar la siguiente tarea para crearlos automáticamente:
+
+    gulp install:db
+
+Ya que se tenga la base de datos y el usuario configurados, ejecutar el siguiente
+comando para instalar concrete5:
+
+    gulp install:concrete5
+
+Al desarrollar un sitio web utilizando esta estructura, es necesario ejecutar
+en todo momento mientras se esté trabajando la tarea:
+
+    gulp 
 
 De esta manera, se realizarán algunas acciones automáticamente:
 
     * Generación de archivos CSS a partir de fuentes LESS.
-    * Copiar recursos necesarios de src/ a build/
+    * Copiar recursos necesarios de manera automática.
 
 Para construir el proyecto, ejecutar la tarea:
 
-TAREA BUILD
+    gulp build
 
+Cada sitio web contiene 2 directorios principales y un controlador:
 
-Cada sitio está estructurado como un paquete de C5, y es considerado 
-internamente como un "website package". Un website packages es básicamente
-un paquete normal de C5 con ligeras modificaciones:
+src/config - Contiene directivas de configuración de concrete5. 
+Es copiado a src/www/config/
 
-    * Cada website package incluye un directorio config/, donde se pueden
-    establecer las configuraciones del sitio web. Todos los archivos que
-    aquí se encuentren se copiarán a build/config.
-    * Los overrides de funcionalidad core de C5 deben incluirse en el
-    directorio overrides/, siguiendo la misma estructura de una app web
-    de C5. Estos se copiarán al directorio que corresponda en build/
-    al construir el proyecto.
+src/www - Contiene una instalación de concrete5. Aquí se encuentra el tema
+principal de la aplicación en src/www/themes/site.
+
+src/controller.php - El controlador (instalador) del sitio web. Permite
+instalar los distintos elementos que conformaran al sitio web (paquetes,
+temas, bloques, etc). Este controlador es en realidad parte de un paquete,
+el paquete 'site' y sirve únicamente para permitir definir los elementos que
+se instalarán. Es copiado a src/www/packages/site/controller.php

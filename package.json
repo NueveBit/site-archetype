@@ -15,7 +15,6 @@
     "karma": "^0.10.10",
     "protractor": "^0.21.0",
     "yargs": "^1.2.1",
-    "express": "^4.0.0",
     "connect-livereload": "^0.4.0",
     "tiny-lr": "0.0.5",
     "karma-script-launcher": "^0.1.0",
@@ -26,6 +25,6 @@
     "q": "^1.0.1"
   },
   "scripts": {
-    "postinstall": "bower install"
+    "postinstall": "composer install && bower install"
   }
 }
