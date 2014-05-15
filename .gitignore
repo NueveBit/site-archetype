@@ -32,7 +32,8 @@
 /src/www/concrete/
 
 # este archivo se copia desde /src/config, no es necesario incluirlo
-/src/www/config/
+/src/www/config/db.json
+/src/www/config/site.php
 
 # cache c5
 /src/www/files/cache/
