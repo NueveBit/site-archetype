@@ -344,10 +344,11 @@ gulp.task("default", [
     gulp.watch(["src/config/**"], ["copy:config"]);
     gulp.watch(["src/controller.php"], ["copy:controller"]);
     gulp.watch(["src/humans.txt.tpl"], ["build:humans"]);
-    gulp.watch(["src/www/themes/site/js/**/*.js"], ["build:scripts"]);
+    gulp.watch(["src/www/themes/site/js/**"], ["build:scripts"]);
     gulp.watch(["src/www/themes/site/less/**/*.less"], ["build:less"]);
 
     gulp.watch([
+        "src/config/**/*",
         "src/www/**/*.php",
         "src/www/js/**/*.js",
         "src/www/css/**/*.css"
