@@ -1,11 +1,13 @@
-@import "utils.less"; // utility mixins
-
 //@import "vendor/semanticgs/grid.less";
-.bower_import("bootstrap/less/variables.less");
-.bower_import("bootstrap/less/mixins.less");
-.bower_import("bootstrap/less/normalize.less");
-.bower_import("bootstrap/less/scaffolding.less");
-.bower_import("bootstrap/less/utilities.less");
+
+@bower_path: "../../../bower_components";
+@bootstrap: "@{bower_path}/bootstrap/less/";
+
+@import "@{bootstrap}/variables.less";
+@import "@{bootstrap}/mixins.less";
+@import "@{bootstrap}/scaffolding.less";
+@import "@{bootstrap}/normalize.less";
+@import "@{bootstrap}/utilities.less";
 
 @import "variables.less";
 @import "application.less";
