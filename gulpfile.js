@@ -274,7 +274,9 @@ gulp.task("build:scripts", function() {
 gulp.task("build:less", function() {
     var source = path.join(config.srcDir, "www/themes/site/less/main.less");
     return gulp.src(source)
-            .pipe(less().on("error", util.log))
+            .pipe(less({
+                rootpath: "../themes/site/less/"
+            }).on("error", util.log))
             .pipe(rename("main.css"))
             .pipe(gulp.dest("src/www/css"));
 });

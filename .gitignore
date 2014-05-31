@@ -20,7 +20,7 @@
 *.sublime-*
 
 # configuración de netbeans privada
-/nbproject
+/nbproject/
 
 # main.css se genera cada vez que hay cambios en los archivos less
 /src/www/css/main.css
@@ -42,6 +42,8 @@
 # updates c5
 #/src/www/updates/
 
-/src/www/packages/c5-nuevebit
+# paquete c5 nuevebit
+/src/www/packages/c5-nuevebit/
 
+# humans.txt es generado por gulp
 /src/www/humans.txt

@@ -54,7 +54,8 @@
         "concrete5/concrete5-cli": "dev-master",
         "concrete5/concrete5": "~5.6",
         "nuevebit/c5-starting-points": "1.0",
-        "nuevebit/c5-nuevebit": "dev-master"
+        "nuevebit/c5-nuevebit": "dev-master",
+        "mrclay/minify": "2.1.7"
     },
     "extra": {
         "installer-paths": {

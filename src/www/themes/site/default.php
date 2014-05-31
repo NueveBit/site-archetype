@@ -11,8 +11,7 @@
         <link type="text/plain" rel="author" href="humans.txt" title="Developer Team" />
 
         <?php
-        // we use this helper instead of the default HtmlHelper, because we support LESS
-        $assets = Loader::helper("assets", "c5-nuevebit");
+        $assets = Loader::helper("html");
 
         // main.css is created by gulp
         $this->addHeaderItem($assets->css("main.css"));
@@ -20,9 +19,9 @@
         // Load stylesheets/scripts before calling Loader::packageElement()
         // Include Modernizr in the Header
         // NOTE: All paths are relative to js/ folder in src/www
-        $this->addHeaderItem($assets->javascript("../bower_components/modernizr/modernizr.js", true));
+        $this->addHeaderItem($assets->javascript("/bower_components/modernizr/modernizr.js"));
 
-        Loader::packageElement('header_required', "c5-nuevebit");
+        Loader::element('header_required');
         ?>
 
     </head>
@@ -39,7 +38,7 @@
         // main.js is created by gulp
         $this->addFooterItem($assets->javascript("main.js"));
 
-        Loader::packageElement('footer_required', "c5-nuevebit");
+        Loader::element('footer_required');
         ?>
         <!-- END SCRIPTS FOOTER -->
     </body>

@@ -7,6 +7,7 @@ if ((isset($_GET["f"]) && $_GET["f"]) &&
 
     define('DIR_BASE', dirname($_SERVER['SCRIPT_FILENAME']));
     define('DIR_PACKAGES', DIR_BASE . '/packages');
+    define('DIR_LIBRARIES', DIR_BASE . '/libraries');
     define('DIR_FILES_CACHE', DIR_BASE . '/files/cache');
     define('DIRNAME_JAVASCRIPT', 'js');
     define('DIRNAME_PACKAGES', 'packages');
@@ -30,199 +31,156 @@ if ((isset($_GET["f"]) && $_GET["f"]) &&
     $libPath = $path . "/libraries";
 
     ini_set("include_path", get_include_path() . PATH_SEPARATOR . $libPath . PATH_SEPARATOR . $libPath . '/Minify' . PATH_SEPARATOR . '/lessphp');
-    require_once($libPath . '/Minify/Minify.php');
-    require_once($libPath . '/lessphp/lessc.php');
-    require_once($libPath . '/minify.php');
-
+    //require_once($libPath . '/Minify/Minify.php');
+    require_once(DIR_LIBRARIES . "/vendor/autoload.php");
+    //require_once($libPath . '/lessphp/lessc.php');
+    //require_once($libPath . '/minify.php');
     // we need to add this directory to the include path, so we don't have to change
     // the references in code
 
     $files = explode(",", $_GET["f"]);
-    $sources = array();
     $type = $_GET["t"];
-    $packages = array();
+    $view = (isset($_GET["v"]) && $_GET["v"]) ? $_GET["v"] : null;
 
-    foreach ($files as $file) {
-        // security measures...
-        $file = str_replace("../", "", $file);
-        
-        list($name, $pkg) = explode(";", $file);
-        $packages[] = $pkg;
+    $minifier = new Minifier($files, $type, $view);
+    $minifier->serve();
+}
 
-        $source = getSource($type, $name, $pkg);
-        if ($source) {
-            $sources[] = $source;
+class Minifier {
+
+    private $sources;
+    private $packages;
+    private $view;
+
+    /**
+     * 
+     * @param array $files The files to be minified
+     * @param char $type The type of the files to minify (css/javascript)
+     * @param string $view The current template used by C5 
+     */
+    function __construct($files, $type, $view = null) {
+        $this->sources = array();
+        $this->packages = array();
+        $this->view = str_replace("../", "", $view);
+
+        foreach ($files as $file) {
+            // security measures...
+            $file = str_replace("../", "", $file);
+
+            list($name, $pkg) = explode(";", $file);
+            $this->packages[] = $pkg;
+
+            $source = $this->getSource($type, $name, $pkg);
+            if ($source) {
+                $this->sources[] = $source;
+            }
         }
     }
 
-    $options = array(
-        'files' => (array) $sources,
-        'encodeMethod' => ''
-    );
+    function serve() {
+        $options = array(
+            'files' => $this->sources,
+            'encodeMethod' => ''
+        );
 
+        list($prefix) = explode('/' . MINIFY_SCRIPT, DIR_REL, 2);
+        if ($prefix) {
+            $prefix = ltrim($prefix, "/");
 
-    
-    list($prefix) = explode('/' . MINIFY_SCRIPT, DIR_REL, 2);
-    if ($prefix) {
-        $prefix = ltrim($prefix, "/");
+            $symlinks = array();
+            $symlinks["//" . $prefix] = DIR_BASE;
+            $symlinks["//" . $prefix . "/concrete"] = DIR_BASE_CORE;
 
-        $symlinks = array();
-        $symlinks["//" . $prefix] = DIR_BASE;
-        $symlinks["//" . $prefix . "/concrete"] = DIR_BASE_CORE;
+            $packages = array_unique($this->packages);
 
-        $packages = array_unique($packages);
-
-        // this makes OS symlinks work
-        foreach ($packages as $package) {
-            if ($package) {
-                $path = DIR_BASE . "/packages/" . $package;
+            // this makes OS symlinks work
+            foreach ($packages as $package) {
+                if ($package) {
+                    $path = DIR_BASE . "/packages/" . $package;
 //                $path = realpath($path);
 
-                $symlinks["//$prefix/packages/$package"] = $path;
-            }
-        }
-
-        $options["minifierOptions"] = array(Minify::TYPE_CSS => array(
-                "symlinks" =>  $symlinks
-        ));
-    }
-
-    Minify::setDocRoot(DIR_BASE);
-
-    if (defined('MINIFY_CACHE_DISABLE') && MINIFY_CACHE_DISABLE) {
-        Minify::setCache(null);
-        $options['lastModifiedTime'] = 0;
-    } else {
-        Minify::setCache(DIR_FILES_CACHE);
-    }
-
-    Minify::serve("Files", $options);
-}
-
-function getSource($type, $file, $pkgHandle) {
-    if ($type == "css") {
-        $filetype = (strpos($file, ".less") !== false) ? "less" : DIRNAME_CSS;
-        $source = resolveCss($file, $filetype, $pkgHandle);
-
-        if ($filetype == "less") {
-            $source = new NB_LessSource($source);
-        }
-    } else {
-        $source = resolveJs($file, $pkgHandle);
-    }
-
-    return $source;
-}
-
-function resolveJs($file, $pkgHandle) {
-    if (substr($file, 0, 1) == '/') {
-
-        // let's try to guess the path
-        if (strpos($file, "packages/") !== false) {
-            $path = substr($file, strpos($file, "packages/") + 9);
-
-            if (file_exists(DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $path)) {
-                $path = DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $path;
-            } else {
-                $path = DIR_BASE_CORE . '/' . DIRNAME_PACKAGES . '/' . $path;
+                    $symlinks["//$prefix/packages/$package"] = $path;
+                }
             }
 
-            return $path;
-        } else if (strpos($file, "blocks/") !== false) {
-            $path = substr($file, strpos($file, "blocks/") + 7);
-
-            if (file_exists(DIR_BASE . '/' . DIRNAME_BLOCKS . '/' . $path)) {
-                $path = DIR_BASE . '/' . DIRNAME_BLOCKS . '/' . $path;
-            } else {
-                $path = DIR_BASE_CORE . '/' . DIRNAME_BLOCKS . '/' . $path;
-            }
-
-            return $path;
+            $options["minifierOptions"] = array(Minify::TYPE_CSS => array(
+                    "symlinks" => $symlinks
+            ));
         }
-    }
 
-    if (substr($file, 0, 4) == 'http' || strpos($file, "index.php") > -1) {
-        return null;
-    }
+        Minify::setDocRoot(DIR_BASE);
 
-    if (file_exists(DIR_BASE . '/' . DIRNAME_JAVASCRIPT . '/' . $file)) {
-        $path = DIR_BASE . '/' . DIRNAME_JAVASCRIPT . '/' . $file;
-    } else if ($pkgHandle != null) {
-        if (file_exists(DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . DIRNAME_JAVASCRIPT . '/' . $file)) {
-            $path = DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . DIRNAME_JAVASCRIPT . '/' . $file;
-        } else if (file_exists(DIR_BASE_CORE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . DIRNAME_JAVASCRIPT . '/' . $file)) {
-            $path = DIR_BASE_CORE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . DIRNAME_JAVASCRIPT . '/' . $file;
+        if (defined('MINIFY_CACHE_DISABLE') && MINIFY_CACHE_DISABLE) {
+            Minify::setCache(null);
+            $options['lastModifiedTime'] = 0;
+        } else {
+            Minify::setCache(DIR_FILES_CACHE);
         }
+
+        Minify::serve("Files", $options);
     }
 
-    if ($path == '') {
-        $path = DIR_BASE_CORE . '/' . DIRNAME_JAVASCRIPT . '/' . $file;
-    }
-
-    return $path;
-}
-
-function resolveCss($file, $type, $pkgHandle) {
-    if (substr($file, 0, 1) == '/') {
-
-        // let's try to guess the path
-        if (strpos($file, "packages/") !== false) {
-            $path = substr($file, strpos($file, "packages/") + 9);
-
-            if (file_exists(DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $path)) {
-                $path = DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $path;
-            } else {
-                $path = DIR_BASE_CORE . '/' . DIRNAME_PACKAGES . '/' . $path;
-            }
-
-            return $path;
-        } else if (strpos($file, "blocks/") !== false) {
-            $path = substr($file, strpos($file, "blocks/") + 7);
-
-            if (file_exists(DIR_BASE . '/' . DIRNAME_BLOCKS . '/' . $path)) {
-                $path = DIR_BASE . '/' . DIRNAME_BLOCKS . '/' . $path;
-            } else {
-                $path = DIR_BASE_CORE . '/' . DIRNAME_BLOCKS . '/' . $path;
-            }
-
-            return $path;
+    private function getSource($type, $file, $pkgHandle) {
+        if (substr($file, 0, 4) == 'http' || strpos($file, "index.php") > -1) {
+            return null;
         }
-    }
 
-    if (substr($file, 0, 4) == 'http' || strpos($file, "index.php") > -1) {
-        return null;
-    }
+        $path = null;
+        $currentTheme = $this->view;
 
-    $path = '';
-    // if the first character is a / then that means we just go right through, it's a direct path
-    if (substr($file, 0, 1) == '/' || substr($file, 0, 4) == 'http' || strpos($file, "index.php") > -1) {
-        return null;
-    }
+        if (substr($file, 0, 1) == '/') {
 
-    $currentTheme = str_replace("../", "", $_GET["v"]);
-    if (isset($currentTheme) && $currentTheme != "") {
-        $currentThemeDirectory = DIR_FILES_THEMES . '/' . $currentTheme;
+            // let's try to guess the path
+            if (strpos($file, "packages/") !== false) {
+                $path = substr($file, strpos($file, "packages/") + 9);
 
-        if ($currentThemeDirectory != '' && file_exists($currentThemeDirectory . '/' . $file)) {
-            $path = $currentThemeDirectory . '/' . $file;
+                if (file_exists(DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $path)) {
+                    $path = DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $path;
+                } else {
+                    $path = DIR_BASE_CORE . '/' . DIRNAME_PACKAGES . '/' . $path;
+                }
+            } else if (strpos($file, "blocks/") !== false) {
+                $path = substr($file, strpos($file, "blocks/") + 7);
+
+                if (file_exists(DIR_BASE . '/' . DIRNAME_BLOCKS . '/' . $path)) {
+                    $path = DIR_BASE . '/' . DIRNAME_BLOCKS . '/' . $path;
+                } else {
+                    $path = DIR_BASE_CORE . '/' . DIRNAME_BLOCKS . '/' . $path;
+                }
+            } else if (strpos($file, "/bower_components/") === 0 && file_exists(DIR_BASE . $file)) { // search in bower components
+                $path = DIR_BASE . $file;
+            }
+        } else if (file_exists(DIR_BASE . '/' . $type . '/' . $file)) {
+            $path = DIR_BASE . '/' . $type . '/' . $file;
         } else if ($pkgHandle != null) {
             if (file_exists(DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . $type . '/' . $file)) {
                 $path = DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . $type . '/' . $file;
-            } else if (file_exists(DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/themes/' . $currentTheme . '/' . $file)) {
-                $path = DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/themes/' . $currentTheme . '/' . $file;
             } else if (file_exists(DIR_BASE_CORE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . $type . '/' . $file)) {
                 $path = DIR_BASE_CORE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . $type . '/' . $file;
             }
+        } else if ($currentTheme) {
+            $currentThemeDirectory = DIR_FILES_THEMES . '/' . $currentTheme;
+
+            if (file_exists($currentThemeDirectory . '/' . $file)) {
+                $path = $currentThemeDirectory . '/' . $file;
+            } else if ($pkgHandle != null) {
+                if (file_exists(DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . $type . '/' . $file)) {
+                    $path = DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . $type . '/' . $file;
+                } else if (file_exists(DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/themes/' . $currentTheme . '/' . $file)) {
+                    $path = DIR_BASE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/themes/' . $currentTheme . '/' . $file;
+                } else if (file_exists(DIR_BASE_CORE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . $type . '/' . $file)) {
+                    $path = DIR_BASE_CORE . '/' . DIRNAME_PACKAGES . '/' . $pkgHandle . '/' . $type . '/' . $file;
+                }
+            }
         }
-    } else if (file_exists(DIR_BASE . '/' . $type . '/' . $file)) {
-        $path = DIR_BASE . '/' . $type . '/' . $file;
+
+        if (!$path) {
+            $path = DIR_BASE_CORE . '/' . $type . '/' . $file;
+        }
+
+        return $path;
     }
 
-    if ($path == '') {
-        $path = DIR_BASE_CORE . '/' . $type . '/' . $file;
-    }
-
-    return $path;
 }
 
 ?>
