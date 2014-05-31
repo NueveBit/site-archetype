@@ -61,11 +61,11 @@ class Minifier {
     function __construct($files, $type, $view = null) {
         $this->sources = array();
         $this->packages = array();
-        $this->view = str_replace("../", "", $view);
+        $this->view = $this->safePath($view);
 
         foreach ($files as $file) {
             // security measures...
-            $file = str_replace("../", "", $file);
+            $file = $this->safePath($file);
 
             list($name, $pkg) = explode(";", $file);
             $this->packages[] = $pkg;
@@ -176,6 +176,18 @@ class Minifier {
 
         if (!$path) {
             $path = DIR_BASE_CORE . '/' . $type . '/' . $file;
+        }
+
+        return $path;
+    }
+
+    private function safePath($path) {
+        if (!$path) {
+            return null;
+        }
+        
+        while (strpos($path, "../") !== false) {
+            $path = str_replace("../", "", $path);
         }
 
         return $path;
