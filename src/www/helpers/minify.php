@@ -108,6 +108,7 @@ class MinifyHelper {
         $targetFiles = array();
         $targetFiles["css"] = "";
         $targetFiles["js"] = "";
+        $hash = "";
 
         foreach ($sources as $source) {
             list($name, $type, $pkg) = self::getFileInfo($source);
@@ -133,6 +134,14 @@ class MinifyHelper {
                 if ($name == "jquery.js") {
                     continue;
                 }
+            }
+
+            // these are combined by gulp and are the scripts and styles
+            // for this website, if these ever change, then a new hash must
+            // be generated to force browsers to redownload the file and
+            // ignore the one they have in cache.
+            if ($name == "main.js" || $name == "main.css") {
+                $hash = md5_file(DIR_BASE . $source->file);
             }
 
             // since we compile less files, we can avoid including the js compiler
@@ -163,12 +172,18 @@ class MinifyHelper {
 
         if ($targetFiles["css"]) {
             $cssUrl = $url . $targetFiles["css"] . "&amp;t=css&amp;v=$currentTheme";
+            if ($hash) {
+                $cssUrl .= "&h=$hash";
+            }
         } else {
             $cssUrl = null;
         }
 
         if ($targetFiles["js"]) {
             $jsUrl = $url . $targetFiles["js"] . "&amp;t=js&amp;v=$currentTheme";
+            if ($hash) {
+                $jsUrl .= "&h=$hash";
+            }
         } else {
             $jsUrl = null;
         }
