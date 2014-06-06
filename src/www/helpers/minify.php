@@ -141,7 +141,7 @@ class MinifyHelper {
             // be generated to force browsers to redownload the file and
             // ignore the one they have in cache.
             if ($name == "main.js" || $name == "main.css") {
-                $hash = md5_file(DIR_BASE . $source->file);
+                $hash = md5_file(DIR_BASE . '/' . $type . '/' . $name);
             }
 
             // since we compile less files, we can avoid including the js compiler
