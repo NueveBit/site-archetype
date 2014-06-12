@@ -216,7 +216,6 @@ gulp.task("clean", function() {
 
 gulp.task("clean:dev", function() {
     return gulp.src([
-        config.distDir,
         "src/www/css/main.css",
         "src/www/js/main.js"
     ]).pipe(clean());
@@ -298,7 +297,7 @@ gulp.task("build:humans", function() {
             .pipe(template({
                 authors: composer.authors}))
             .pipe(rename("humans.txt"))
-            .pipe(gulp.dest("src/www"));
+            .pipe(gulp.dest("dist/www"));
 });
 
 /**
@@ -307,7 +306,6 @@ gulp.task("build:humans", function() {
 gulp.task("build:prepare", [
     "build:less",
     "build:scripts",
-    "build:humans",
     "copy:controller",
     "copy:config"
 ]);
@@ -339,7 +337,7 @@ gulp.task("serve", function() {
 /**
  * Build the website, excluding unnecesary files.
  */
-gulp.task("build", ["build:prepare", "build:minify"], function() {
+gulp.task("build", ["build:prepare", "build:humans", "build:minify"], function() {
     return gulp.src([
         "src/www/**",
         "!src/www/themes/site/{css,less,js}{,/**}",
@@ -361,11 +359,7 @@ gulp.task("dist", ["build"], function() {
 /**
  * Debe ejecutarse en una terminal mientras se esté trabajando en el proyecto.
  * Se encarga de observar cambios en distintos archivos y al detectarlos
- * regenerar index.html de desarrollo.
- * 
- * Útil para actualizar los scripts js del proyecto y automáticamente regenerar
- * index.html para tomarlos en cuenta, así se evita la tarea manual repetitiva
- * de ejecutar el task build:template-dev.
+ * regenerarlos con la información actualizada.
  * 
  * Además, inicializa un servidor web y configura livereload para recargar
  * el navegador automáticamente cuando se detecta un cambio en los archivos
