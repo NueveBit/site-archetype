@@ -13,6 +13,9 @@
 # build files
 /build/
 
+# dist files
+/dist/
+
 # backup files
 *.log
 *.swp
@@ -47,3 +50,5 @@
 
 # humans.txt es generado por gulp
 /src/www/humans.txt
+/dist/packages/c5-nuevebit/nbproject/private/
+

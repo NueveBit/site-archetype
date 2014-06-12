@@ -210,6 +210,10 @@ gulp.task("install", ["install:db"], function() {
  * Clean tasks 
  */
 gulp.task("clean", function() {
+    return gulp.src("dist").pipe(clean());
+});
+
+gulp.task("clean:dev", function() {
     return gulp.src([
         config.distDir,
         "src/www/css/main.css",
@@ -222,7 +226,7 @@ gulp.task("clean:bower", function() {
             .pipe(clean());
 });
 
-gulp.task("clean:all", ["clean", "clean:bower"], function() {
+gulp.task("clean:all", ["clean", "clean:dev", "clean:bower"], function() {
 });
 
 /**
@@ -263,14 +267,6 @@ gulp.task("build:scripts", function() {
             .pipe(gulp.dest("src/www/js"));
 });
 
-/*
- gulp.task("build:style", ["build:less"], function() {
- gulp.src("src/www/css/main.css")
- .pipe(minifycss())
- .pipe(gulp.dest("dist/www/css"));
- });
- */
-
 gulp.task("build:less", function() {
     var source = path.join(config.srcDir, "www/themes/site/less/main.less");
     return gulp.src(source)
@@ -281,17 +277,50 @@ gulp.task("build:less", function() {
             .pipe(gulp.dest("src/www/css"));
 });
 
+gulp.task("build:minify", ["build:less", "build:scripts"], function() {
+    gulp.src(path.join(config.srcDir, "www/css/main.css"))
+            .pipe(minifycss())
+            .pipe(gulp.dest("dist/css"));
+
+    gulp.src(path.join(config.srcDir, "www/js/main.js"))
+            .pipe(uglify())
+            .pipe(gulp.dest("dist/js"));
+});
+
 /**
  * Build humans.txt based on information from composer.json
  */
 gulp.task("build:humans", function() {
     var composer = JSON.parse(fs.readFileSync("composer.json"));
 
-    gulp.src("src/humans.txt.tpl")
+    return gulp.src("src/humans.txt.tpl")
             .pipe(template({
                 authors: composer.authors}))
             .pipe(rename("humans.txt"))
             .pipe(gulp.dest("src/www"));
+});
+
+/**
+ * Prepare for building...
+ */
+gulp.task("build:prepare", [
+    "build:less",
+    "build:scripts",
+    "build:humans",
+    "copy:controller",
+    "copy:config"
+]);
+
+
+/**
+ * Build the website, excluding unnecesary files.
+ */
+gulp.task("build", ["build:prepare", "build:minify"], function() {
+    return gulp.src([
+        "src/www/**",
+        "!src/www/themes/site/{css,less,js}{,/**}",
+        "!src/www/{css,js}{,/**}"
+    ]).pipe(gulp.dest("dist"));
 });
 
 /**
@@ -331,13 +360,7 @@ gulp.task("serve", function() {
  * el navegador automáticamente cuando se detecta un cambio en los archivos
  * que observa gulp.
  */
-gulp.task("default", [
-    "build:less",
-    "build:scripts",
-    "build:humans",
-    "copy:controller",
-    "copy:config"
-], function() {
+gulp.task("default", ["build:prepare"], function() {
     // inicializa el servidor web y el servidor livereload
     server.livestart();
 
