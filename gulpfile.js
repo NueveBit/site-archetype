@@ -29,6 +29,7 @@ var uglify = require("gulp-uglify");
 var less = require('gulp-less');
 var minifycss = require("gulp-minify-css");
 var template = require('gulp-template');
+var zip = require('gulp-zip');
 
 // local config
 var config = {
@@ -280,11 +281,11 @@ gulp.task("build:less", function() {
 gulp.task("build:minify", ["build:less", "build:scripts"], function() {
     gulp.src(path.join(config.srcDir, "www/css/main.css"))
             .pipe(minifycss())
-            .pipe(gulp.dest("dist/css"));
+            .pipe(gulp.dest("dist/www/css"));
 
     gulp.src(path.join(config.srcDir, "www/js/main.js"))
             .pipe(uglify())
-            .pipe(gulp.dest("dist/js"));
+            .pipe(gulp.dest("dist/www/js"));
 });
 
 /**
@@ -313,17 +314,6 @@ gulp.task("build:prepare", [
 
 
 /**
- * Build the website, excluding unnecesary files.
- */
-gulp.task("build", ["build:prepare", "build:minify"], function() {
-    return gulp.src([
-        "src/www/**",
-        "!src/www/themes/site/{css,less,js}{,/**}",
-        "!src/www/{css,js}{,/**}"
-    ]).pipe(gulp.dest("dist"));
-});
-
-/**
  * Public tasks
  * 
  * Estas son las tareas que comunmente se ejecutan en la línea de comandos.
@@ -345,6 +335,27 @@ gulp.task("build", ["build:prepare", "build:minify"], function() {
 gulp.task("serve", function() {
     server.start();
 });
+
+/**
+ * Build the website, excluding unnecesary files.
+ */
+gulp.task("build", ["build:prepare", "build:minify"], function() {
+    return gulp.src([
+        "src/www/**",
+        "!src/www/themes/site/{css,less,js}{,/**}",
+        "!src/www/{css,js}{,/**}"
+    ]).pipe(gulp.dest("dist/www"));
+});
+
+/**
+ * Create zip file for distribution.
+ */
+gulp.task("dist", ["build"], function() {
+    return gulp.src("dist/www/**")
+            .pipe(zip("site.zip"))
+            .pipe(gulp.dest("dist"));
+});
+
 
 
 /**
