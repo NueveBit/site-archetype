@@ -387,5 +387,9 @@ gulp.task("default", ["build:prepare"], function() {
 
 // shortcuts
 gulp.task("rebuild", ["clean"], function() {
-    gulp.start("build");
+    return gulp.start("build");
+});
+
+gulp.task("redist", ["clean"], function() {
+    return gulp.start("dist");
 });
