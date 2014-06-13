@@ -236,7 +236,8 @@ gulp.task("clean:all", ["clean", "clean:dev", "clean:bower"], function() {
 gulp.task("copy:config", function() {
     return gulp.src(["**", "!site.php.tpl"], {
         cwd: "src/config/"
-    }).pipe(gulp.dest("src/www/config"));
+    })
+            .pipe(gulp.dest("src/www/config"));
 });
 
 gulp.task("copy:controller", function() {
@@ -345,16 +346,6 @@ gulp.task("build:prepare", [
  */
 
 /**
- * Construye los paquetes distribuiles para las plataformas soportadas.
- * 
- * NOTE: Para ejecutar esta tarea, es necesario tener instalado y configurado
- * en el sistema el SDK de Android (única plataforma soportada actualmente).
- gulp.task("build", ["build:web", "copy:cordova-resources"], function() {
- gulp.start("build:cordova");
- });
- */
-
-/**
  * Inicia un servidor web en el puerto 4000
  */
 gulp.task("serve", function() {
@@ -362,21 +353,28 @@ gulp.task("serve", function() {
 });
 
 /**
- * Build the website, excluding unnecesary files.
+ * Build the website, excluding unnecesary files. This should be called before
+ * deploying, as it will generate the production ready website under dist/www
  */
 gulp.task("build", [
-    "build:prepare", 
+    "build:prepare",
     "build:config-prod",
-    "build:humans", 
-    "build:minify"], 
-function() {
-    return gulp.src([
-        "src/www/**",
-        "!src/www/config/site.php",
-        "!src/www/themes/site/{css,less,js}{,/**}",
-        "!src/www/{css,js}{,/**}"
-    ]).pipe(gulp.dest("dist/www"));
-});
+    "build:humans",
+    "build:minify"],
+        function() {
+            var sources = [
+                "src/www/**",
+                "!src/www/config/site.php",
+                "!src/www/themes/site/{css,less,js}{,/**}",
+                "!src/www/{css,js}{,/**}"
+            ];
+
+            if (argv.exclude) {
+                sources.push("!src/www/" + argv.exclude + "{,/**}");
+            }
+            
+            return gulp.src(sources).pipe(gulp.dest("dist/www"));
+        });
 
 /**
  * Create zip file for distribution.
@@ -386,8 +384,6 @@ gulp.task("dist", ["build"], function() {
             .pipe(zip("site.zip"))
             .pipe(gulp.dest("dist"));
 });
-
-
 
 /**
  * Debe ejecutarse en una terminal mientras se esté trabajando en el proyecto.
