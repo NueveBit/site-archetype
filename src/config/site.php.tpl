@@ -14,7 +14,7 @@ setlocale(LC_ALL, 'es_MX.UTF-8');
 setlocale(LC_NUMERIC, 'en_US');
 
 // MINIFIER CONFIGURATION
-define('MINIFY_ENABLE', FALSE);
+define('MINIFY_ENABLE', <%- enable_minify %>);
 define('MINIFY_CACHE_DISABLE', FALSE);
 define('MINIFY_SCRIPT', 'minify.php');
 

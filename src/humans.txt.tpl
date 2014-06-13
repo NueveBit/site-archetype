@@ -6,7 +6,6 @@ Organization: NueveBit
 Email: <%- author.email %>
 <% }); %>
 /* SITE */
-
 Standards: HTML5, CSS3, JavaScript
 Components: Modernizr, jQuery, LESS CSS, Bootstrap
 CMS: Concrete5

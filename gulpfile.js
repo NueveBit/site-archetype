@@ -18,6 +18,7 @@ var spawn = require("child_process").spawn;
 var read = require('read');
 var Q = require('q');
 var http = require("http");
+var merge = require('merge-stream');
 
 // gulp plugins
 var gulp = require("gulp");
@@ -182,7 +183,7 @@ gulp.task("install:concrete5", ["copy:concrete5-sp"], function(cb) {
     });
 });
 
-gulp.task("install:concrete5-packages", ["copy:config"], function(cb) {
+gulp.task("install:concrete5-packages", ["build:config-dev"], function(cb) {
     var packageInstaller
             = "src/www/libraries/vendor/concrete5/concrete5-cli/install-concrete5-package.php";
 
@@ -233,7 +234,9 @@ gulp.task("clean:all", ["clean", "clean:dev", "clean:bower"], function() {
  * Copy tasks
  */
 gulp.task("copy:config", function() {
-    return gulp.src("**", {cwd: "src/config/"}).pipe(gulp.dest("src/www/config/"));
+    return gulp.src(["**", "!site.php.tpl"], {
+        cwd: "src/config/"
+    }).pipe(gulp.dest("src/www/config"));
 });
 
 gulp.task("copy:controller", function() {
@@ -295,9 +298,34 @@ gulp.task("build:humans", function() {
 
     return gulp.src("src/humans.txt.tpl")
             .pipe(template({
-                authors: composer.authors}))
+                authors: composer.authors
+            }))
             .pipe(rename("humans.txt"))
             .pipe(gulp.dest("dist/www"));
+});
+
+/**
+ * Dev config
+ */
+gulp.task("build:config-dev", ["copy:config"], function() {
+    return gulp.src("src/config/site.php.tpl")
+            .pipe(template({
+                enable_minify: "FALSE"
+            }))
+            .pipe(rename("site.php"))
+            .pipe(gulp.dest("src/www/config"));
+});
+
+/**
+ * Production config
+ */
+gulp.task("build:config-prod", ["copy:config"], function() {
+    return gulp.src("src/config/site.php.tpl")
+            .pipe(template({
+                enable_minify: "TRUE"
+            }))
+            .pipe(rename("site.php"))
+            .pipe(gulp.dest("dist/www/config"));
 });
 
 /**
@@ -306,8 +334,7 @@ gulp.task("build:humans", function() {
 gulp.task("build:prepare", [
     "build:less",
     "build:scripts",
-    "copy:controller",
-    "copy:config"
+    "copy:controller"
 ]);
 
 
@@ -337,9 +364,15 @@ gulp.task("serve", function() {
 /**
  * Build the website, excluding unnecesary files.
  */
-gulp.task("build", ["build:prepare", "build:humans", "build:minify"], function() {
+gulp.task("build", [
+    "build:prepare", 
+    "build:config-prod",
+    "build:humans", 
+    "build:minify"], 
+function() {
     return gulp.src([
         "src/www/**",
+        "!src/www/config/site.php",
         "!src/www/themes/site/{css,less,js}{,/**}",
         "!src/www/{css,js}{,/**}"
     ]).pipe(gulp.dest("dist/www"));
@@ -369,7 +402,7 @@ gulp.task("default", ["build:prepare"], function() {
     // inicializa el servidor web y el servidor livereload
     server.livestart();
 
-    gulp.watch(["src/config/**"], ["copy:config"]);
+    gulp.watch(["src/config/**"], ["build:config-dev"]);
     gulp.watch(["src/controller.php"], ["copy:controller"]);
     gulp.watch(["src/humans.txt.tpl"], ["build:humans"]);
     gulp.watch(["src/www/themes/site/js/**"], ["build:scripts"]);

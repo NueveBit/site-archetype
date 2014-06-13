@@ -18,6 +18,7 @@
     "karma-jasmine": "^0.1.5",
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-script-launcher": "^0.1.0",
+    "merge-stream": "^0.1.1",
     "node-fs": "^0.1.7",
     "protractor": "^0.21.0",
     "q": "^1.0.1",
