@@ -54,7 +54,7 @@ var server = {
     start: function(cb) {
         var options = {
             port: this.port,
-            hostname: '127.0.0.1',
+            hostname: '0.0.0.0',
             base: this.basePath,
             keepalive: true,
             open: false,
