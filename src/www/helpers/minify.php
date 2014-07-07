@@ -90,6 +90,10 @@ class MinifyHelper {
             } else if ($jsUrl != null && $type == "js") {
                 print "<script src='$jsUrl' type='text/javascript'></script> ";
             }
+
+            foreach ($this->inlineItems as $item) {
+                print $item;
+            }
         } else {
             foreach ($sources as $source) {
                 list($name, $type, $pkg) = self::getFileInfo($source);
@@ -98,7 +102,7 @@ class MinifyHelper {
                 if ($name == "jquery.js") {
                     continue;
                 }
-                
+
                 print $source;
             }
         }
